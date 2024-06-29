@@ -1,0 +1,11 @@
+/oewn-*
+/yaml
+/fork
+/oewn
+/testing*
+/__pycache__
+/from-yaml.py
+/wordnet.py
+/wordnet_yaml.py
+/data
+/test*.xml

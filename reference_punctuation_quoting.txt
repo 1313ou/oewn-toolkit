@@ -1,0 +1,67 @@
+new scheme
+`quoted´
+
+QUOTATION
+
+`wordnet (grave-apostrophe)'
+"wordnet (quote2 quote2)"
+
+'apostrophe'
+´acute´
+
+‘quoted’
+‛quoted’
+‚quoted’
+
+“double quoted”
+‟double quoted”
+„double quoted”
+
+❛heavy quoted❜
+❝heavy quoted❞
+
+❟ heavy low ❟ 
+❠ heavy low double ❠ 
+
+« guillemet »
+
+` 60 grave accent
+' 27 apostrophe
+" 22 quotation
+´ B4 acute accent
+ʼ 2BC apostrophe
+＇ FF07 full width apostrophe
+
+‘ 2018 single quotation, left
+’ 2019 single quotation, right
+‚ 201A single low quotation mark, left
+‛ 201B single reversed quotation, left
+
+“ 201C double quotation mark, left
+” 201D double quotation mark, right
+„ 201C double low quotation mark
+‟ 201F double reversed quotation mark
+
+❛ 275B heavy quote
+❜ 275C heavy quote
+❝ 275D heavy quote
+❞ 275E heavy quote
+❟ 275F heavy low quote
+❠ 2760 heavy low double quote
+« 00AB double angle left quotation mark, left guillemet
+» 00BB double angle right quotation mark, right guillemet
+
+DASH
+
+_ 5F low line underscore
+- 2D hyphen minus
+¯ AF overbar
+— 2014 EM dash to offset parenthetical text
+– 2013 EN dash 
+‒ 2011 figure dash
+― 2015 horizontal bar = quotation dash, long dash introducing quoted text
+
+ELLIPSIS
+
+… 2026 three dots
+
