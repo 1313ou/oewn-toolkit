@@ -1,5 +1,12 @@
-new scheme
+old scheme:
+`quoted'
+
+new scheme:
 `quoted´
+`q´
+
+new scheme2:
+“quoted”
 
 QUOTATION
 
@@ -65,3 +72,6 @@ ELLIPSIS
 
 … 2026 three dots
 
+TYPE
+Hold Ctrl + Shift and type U followed by 
+up to eight hex digits 

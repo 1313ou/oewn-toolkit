@@ -3,10 +3,22 @@ import sys
 
 #  H E L P E R S
 
+# old scheme:
+# `quoted'
+#
+# new scheme:
+# `quoted´
+#
+# new scheme2:
+# “quoted”
+
 APOS_SUB = '###'
 LEFT_QUOTE_SUB = '<<<'
 RIGHT_QUOTE_SUB = '>>>'
+QUOTES = "‘’‛‚“”‟„❛❜❝❞❟❠«»"
 
+
+# A P O S T R O P H E
 
 def unescape_apostrophe(input_text):
     return re.sub(rf'{APOS_SUB}', r'\'', input_text)
@@ -45,6 +57,8 @@ def escape_apostrophe_auto(input_text):
     return xesc
 
 
+# U N E V E N / U N C L O S E D
+
 def uneven(input_text, c):
     collected = [m.start() for m in re.finditer(rf'{c}', input_text)]
     if len(collected) % 2 != 0:
@@ -77,7 +91,9 @@ def unclosed(input_text, left, right):
         return None
 
 
-def find_using_find(input_text, what):
+# F I N D
+
+def search_using_find(input_text, what):
     if input_text.find(what) != -1:
         return True
     return None
@@ -95,19 +111,45 @@ def search_regex(input_text, regex):
         return None
 
 
+def find_regex(input_text, regex):
+    if search_regex(input_text, regex):
+        return input_text
+    return None
+
+
+def find_pair(input_text, b1, b2):
+    r = search_regex(input_text, fr'{b1}[^{b2}]*{b2}')
+    if r:
+        return r
+    return None
+
+
+def find_one_of(input_text, list):
+    r = search_regex(input_text, fr'[{list}]')
+    if r:
+        return r
+    return None
+
+
+# S U B S T I T U T I O N
+
+
 def search_sub(input_text, regex, replacement):
     if re.search(regex, input_text):
         return re.sub(regex, replacement, input_text)
     return None
 
 
-def set_apostrophe_escape(input_text):
+# M A R K
+
+
+def mark_apostrophe(input_text):
     esc = escape_apostrophe(input_text)
     return f"{esc}" if esc != input_text else None
 
 
-def sub_wn_quotes(input_text):
-    regex = r"`([^']*)'"
+def mark_wn_quotes(input_text):
+    regex = r"`([^´]*)´"
     replacement = f"{LEFT_QUOTE_SUB}\\1{RIGHT_QUOTE_SUB}"
     if re.search(regex, input_text):
         return re.sub(regex, replacement, input_text)
@@ -115,16 +157,6 @@ def sub_wn_quotes(input_text):
 
 
 #  C A L L A B L E
-
-def find_2_hyphens(input_text):
-    return search_str(input_text, '--')
-
-
-def find_emdash_if_has_2_hyphens(input_text):
-    r = r'\s*--\s*'
-    s = " —— "
-    return search_sub(input_text, r, s)
-
 
 def find_etc(input_text):
     r = r'\betc([^\.a-z])'
@@ -152,12 +184,12 @@ def find_uneven_double_quotes(input_text):
     return uneven(input_text, '"')
 
 
-def find_uneven_single_quotes(input_text):
+def find_uneven_apostrophes(input_text):
     return uneven(input_text, '\'')
 
 
 def find_unclosed_wn_quotes(input_text):
-    return unclosed(input_text, '`', '\'')
+    return unclosed(input_text, '`', '´')
 
 
 def find_unclosed_wn_quotes_excluding_apostrophe(input_text):
@@ -169,68 +201,113 @@ def find_semicolon_after_space(input_text):
     return search_regex(input_text, r' ;')
 
 
+def find_comma_after_space(input_text):
+    return search_regex(input_text, r' ,')
+
+
+def find_stop_after_space(input_text):
+    return search_regex(input_text, r' \.')
+
+
+def find_2_hyphens(input_text):
+    return find_regex(input_text, r'--')
+
+
 def find_double_quotes(input_text):
     return search_regex(input_text, r'"')
 
 
 def find_backtick(input_text):
-    return search_regex(input_text, r'`')
+    return find_regex(input_text, r'`')
 
 
 def find_expanding_apostrophe(input_text):
-    if search_regex(input_text, r'＇'):
-        return input_text
-    return None
-
-
-def find_brackets(input_text, b1, b2):
-    r = search_regex(input_text, fr'{b1}[^{b2}]*{b2}')
-    if r:
-        return r
-    return None
+    return find_regex(input_text, r'＇')
 
 
 def find_angle_brackets(input_text):
-    return find_brackets(input_text, '<', '>')
+    return find_pair(input_text, r'\[', r']')
+
+
+def find_diamond_brackets(input_text):
+    return find_pair(input_text, '<', '>')
 
 
 def find_wn_quotes(input_text):
-    return find_brackets(input_text, '<', '>')
-    # return search_regex(input_text, r"`.*'")
+    return find_pair(input_text, '`', "'")
 
 
-def find_new_quotes(input_text):
-    return find_brackets(input_text, '“', '”')
+def find_new_x_quotes(input_text):
+    return find_pair(input_text, '“', '”')
+
+
+def find_new_x_quote1(input_text):
+    return find_regex(input_text, r'“')
+
+
+def find_new_x_quote2(input_text):
+    return find_regex(input_text, r'”')
+
+dialog_tags='ask|enquire|question'
+dialog_tags='say|said|tell|told|add|continue|reply|replied|answer|exclaim|explain|declare|interpose|cut in|comment|repeat|shout|chorus|shrug|nod'
+
+def find_dialog_tags(input_text):
+    return find_regex(input_text, rf'`[^´]*´.*({dialog_tags})')
 
 
 def find_oddities(input_text):
-    if find_wn_quotes(input_text):
-        return input_text
-    if find_double_quotes(input_text):
-        return input_text
+    # if find_wn_quotes(input_text):
+    #     return f"wnq\t{input_text}"
+    # if find_uneven_apostrophes(input_text):
+    #    return f"a3\t{input_text}"
 
     if find_unclosed_wn_quotes(input_text):
-        return input_text
+        return f"`?\t{input_text}"
     if find_unclosed_parentheses(input_text):
-        return input_text
+        return f"(?\t{input_text}"
 
     if find_uneven_double_quotes(input_text):
-        return input_text
-    if find_uneven_single_quotes(input_text):
-        return input_text
+        return f'"""\t{input_text}'
 
     if find_2_hyphens(input_text):
-        return input_text
-    if find_backtick(input_text):
-        return input_text
+        return f"--\t{input_text}"
+    # if find_backtick(input_text):
+    #    return f"bt\t{input_text}"
 
     if find_etc(input_text):
-        return input_text
+        return f"etc\t{input_text}"
     if find_eg(input_text):
-        return input_text
+        return f"eg\t{input_text}"
+    if find_eg(input_text):
+        return f"ie\t{input_text}"
+
+    if find_double_quotes(input_text):
+        return f'"\t{input_text}'
 
     if find_angle_brackets(input_text):
-        return input_text
+        return f"[]\t{input_text}"
+    if find_diamond_brackets(input_text):
+        return f"<>\t{input_text}"
+
+    if find_semicolon_after_space(input_text):
+        return f"sp;\t{input_text}"
+    if find_comma_after_space(input_text):
+        return f"sp,\t{input_text}"
+    if find_stop_after_space(input_text):
+        return f"sp.\t{input_text}"
+
+    if find_expanding_apostrophe(input_text):
+        return f"ea\t{input_text}"
+    if find_new_x_quotes(input_text):
+        return f"xq\t{input_text}"
+    if find_new_x_quote1(input_text):
+        return f"xq1\t{input_text}"
+    if find_new_x_quote2(input_text):
+        return f"xq2\t{input_text}"
+
+    if find_one_of(input_text, QUOTES):
+        return f"qq\t{input_text}"
+
     return None
 
 
@@ -253,6 +330,12 @@ def process_wn_quotes(input_text):
     if r:
         return r
     return input_text
+
+
+def process_2_hyphens(input_text):
+    r = r'\s*--\s*'
+    s = " — "
+    return search_sub(input_text, r, s)
 
 
 def default_process(input_text):

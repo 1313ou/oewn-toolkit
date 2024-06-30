@@ -3,6 +3,8 @@
 import argparse
 import sys
 import sqlite3
+from typing import Callable, Any
+
 from tqdm.auto import tqdm
 import process
 from process import *
@@ -71,15 +73,25 @@ def get_processing(name):
     return globals()[name] if name else process.default_process
 
 
+def find_target(input_text, target):
+    return find_regex(input_text, target)
+
+
 def main():
     parser = argparse.ArgumentParser(description="scans the examples and definitions from sqlite file")
     parser.add_argument('database', type=str, help='database')
     parser.add_argument('--resume', type=int, help='row to resume from')
     parser.add_argument('--processing', type=str, help='processing function to apply')
+    parser.add_argument('--target', type=str, help='processing function to apply')
     args = parser.parse_args()
-    processingf = get_processing(args.processing)
-    if processingf:
-        print(processingf, file=sys.stderr)
+    target = args.target
+    if target:
+        print(f"target {target}", file=sys.stderr)
+        processingf: Callable[[Any], Any | None] = lambda e: find_target(e, target)
+    else:
+        processingf = get_processing(args.processing)
+        if processingf:
+            print(processingf, file=sys.stderr)
     read(args.database, args.resume, processingf)
 
 
