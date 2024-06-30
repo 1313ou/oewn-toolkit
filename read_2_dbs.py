@@ -9,11 +9,11 @@ import process
 from process import *
 
 sql_union = """
-SELECT 'sam' AS type, sampleid AS tablerowid, sample AS `text`, oewnsynsetid FROM samples INNER JOIN synsets USING(synsetid)
+SELECT 'sam' AS type, sampleid AS nid, sample AS `text`, oewnsynsetid FROM samples INNER JOIN synsets USING(synsetid)
 UNION
-SELECT 'def' AS type, synsetid AS tablerowid, definition AS `text`, oewnsynsetid FROM synsets
+SELECT 'def' AS type, synsetid AS nid, definition AS `text`, oewnsynsetid FROM synsets
 """
-sql = f"SELECT oewnsynsetid, tablerowid, type, `text` FROM ({sql_union}) ORDER BY oewnsynsetid, tablerowid" #+ " LIMIT 10"
+sql = f"SELECT oewnsynsetid, nid, type, `text` FROM ({sql_union}) ORDER BY oewnsynsetid, nid" #+ " LIMIT 10"
 sql_count = f"SELECT COUNT(*) FROM ({sql_union})"
 print(sql, file=sys.stderr)
 
@@ -64,12 +64,12 @@ def read(file, resume):
         row = cursor.fetchone()
         if row is None:
             break
-        text = row["text"]
-        table_rowid = row["tablerowid"]
-        text_type = row["type"]
+        row_text = row["text"]
+        row_nid = row["nid"]
+        row_type = row["type"]
         oewnsynsetid = row["oewnsynsetid"]
-        rowid = f"{oewnsynsetid}\t{table_rowid}\t{text_type}"
-        yield rowid, text
+        rowid = f"{oewnsynsetid}\t{row_nid}\t{row_text}"
+        yield rowid, row_text
     conn.close()
 
 

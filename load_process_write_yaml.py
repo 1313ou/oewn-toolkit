@@ -85,8 +85,8 @@ def save_data(wn, dstdir, processingf):
         # s["members"] = entries_ordered(wn, synset.id)
         # s["members"] = wn.members_by_id(synset.id)
     for key, synsets in synset_yaml.items():
-        with wordnet_yaml.codecs.open("%s/src/yaml/%s.yaml" % (dstdir, key), "w", "utf-8") as outp:
-            outp.write(wordnet_yaml.yaml.dump(synsets, default_flow_style=False, allow_unicode=True))
+        with wordnet_yaml.codecs.open("%s/src/yaml/%s.yaml" % (dstdir, key), "w", "utf-8") as os:
+            os.write(wordnet_yaml.yaml.dump(synsets, default_flow_style=False, allow_unicode=True))
 
 
 def get_processing(name):
