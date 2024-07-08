@@ -81,7 +81,7 @@ def save_data(wn, dstdir, processingf):
             synset_yaml[synset.lex_name] = {}
         synset_yaml[synset.lex_name][synset.id[wordnet_yaml.KEY_PREFIX_LEN:]] = s
         s["members"] = members(wn, synset)
-        # BUG : these do not order preserving
+        # BUG : these do not preserve order
         # s["members"] = entries_ordered(wn, synset.id)
         # s["members"] = wn.members_by_id(synset.id)
     for key, synsets in synset_yaml.items():
