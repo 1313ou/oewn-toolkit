@@ -1,5 +1,6 @@
 import re
 import sys
+import ascii
 
 #  H E L P E R S
 
@@ -248,11 +249,28 @@ def find_new_x_quote1(input_text):
 def find_new_x_quote2(input_text):
     return find_regex(input_text, r'”')
 
-dialog_tags='ask|enquire|question'
-dialog_tags='say|said|tell|told|add|continue|reply|replied|answer|exclaim|explain|declare|interpose|cut in|comment|repeat|shout|chorus|shrug|nod'
+
+def find_single_quoted_char(input_text):
+    return find_regex(input_text, r'`.´')
+
+
+def find_single_quoted_char_nonalpha(input_text):
+    return find_regex(input_text, r'`[^a-zA-Z]´')
+
+
+dialog_tags = 'ask|enquire|question'
+dialog_tags = 'say|said|tell|told|add|continue|reply|replied|answer|exclaim|explain|declare|interpose|cut in|comment|repeat|shout|chorus|shrug|nod'
+
 
 def find_dialog_tags(input_text):
     return find_regex(input_text, rf'`[^´]*´.*({dialog_tags})')
+
+
+def find_not_ascii(input_text):
+    for c in input_text:
+        if not ascii.is_ascii(c) and c not in ascii.wellknown:
+            return f"{c}\t{ascii.code(c)}\t{ascii.category(c)}\t{input_text}"
+    return None
 
 
 def find_oddities(input_text):
@@ -326,7 +344,7 @@ def process_escape_apostrophe_auto(input_text):
 
 
 def process_wn_quotes(input_text):
-    r = sub_wn_quotes(input_text)
+    r = mark_wn_quotes(input_text)
     if r:
         return r
     return input_text

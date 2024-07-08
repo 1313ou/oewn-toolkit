@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import argparse
+import sys
 
 import oewnio
 
@@ -11,7 +12,8 @@ def lemma2senseorder(wn, l, synset_id):
             if sense.synset == synset_id:
                 sk = sense.id
                 num = sk[-4:-2]
-                print(l, sk, num)
+                num2 = sk[-2:]
+                print(f"object:{l}, sensekey:{sk}, sensenum:{num}, sensenum2:{num2}")
                 return num
     return "99"
 
@@ -28,17 +30,27 @@ def members(wn, synset):
 
 
 def test_members(wn, synsetid):
+    print("ORDER PRESERVING")
     synset = wn.id2synset[synsetid]
     # BUG members = entries_ordered(wn, synset.id)
-    lemmas = members(wn, synset)
-    for l in lemmas:
+    members2 = members(wn, synset)
+    for l in members2:
+        print(l)
+
+
+def test_members_orig(wn, synsetid):
+    print("WITH ENTRIES ORDERED")
+    synset = wn.id2synset[synsetid]
+    # BUG
+    members2 = entries_ordered(wn, synset.id)
+    for l in members2:
         print(l)
 
 
 def test_xml(wn, synsetid):
+    print("XML")
     synset = wn.id2synset[synsetid]
-    with open("test-%s.xml" % synsetid, "w") as out:
-        synset.to_xml(out, [])
+    synset.to_xml(sys.stdout, [])
 
 
 def main():
@@ -50,8 +62,9 @@ def main():
     wn = oewnio.load_pickle(args.repo)
 
     # save(wn)
-    test_xml(wn, 'oewn-07299259-n')
     test_members(wn, 'oewn-07299259-n')
+    test_members_orig(wn, 'oewn-07299259-n')
+    test_xml(wn, 'oewn-07299259-n')
 
 
 if __name__ == '__main__':
