@@ -40,4 +40,3 @@ for f in $(find -L "${DIR}" -name 'noun*' -o -name 'verb*' -o -name 'adj*' -o -n
         fi
     fi
 done
-
