@@ -1,11 +1,13 @@
 old scheme:
 `quoted'
 
-new scheme:
+new scheme (accents):
 `quoted´
-`q´
 
-new scheme2:
+new scheme single quotes
+‘quoted’
+
+new scheme double quotes
 “quoted”
 
 QUOTATION
