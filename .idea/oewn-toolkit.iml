@@ -6,6 +6,11 @@
       <excludeFolder url="file://$MODULE_DIR$/data" />
       <excludeFolder url="file://$MODULE_DIR$/fork/src/xml" />
       <excludeFolder url="file://$MODULE_DIR$/testing" />
+      <excludeFolder url="file://$MODULE_DIR$/fork" />
+      <excludeFolder url="file://$MODULE_DIR$/fork2" />
+      <excludeFolder url="file://$MODULE_DIR$/oewn" />
+      <excludeFolder url="file://$MODULE_DIR$/yaml" />
+      <excludeFolder url="file://$MODULE_DIR$/oewn_fork" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.12 (oewn-toolkit)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />

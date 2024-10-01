@@ -1,11 +1,11 @@
 /oewn-*
 /yaml
-/fork
-/oewn
+/fork*
+/oewn*
 /testing*
 /__pycache__
 /from-yaml.py
 /wordnet.py
-/wordnet_yaml.py
+/wordnet_toyaml.py
 /data
 /test*.xml

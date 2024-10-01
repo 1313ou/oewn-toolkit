@@ -4,7 +4,7 @@ import argparse
 import os
 import pickle
 
-import wordnet_yaml
+import wordnet_toyaml
 
 
 def save_pickle(wn, repo):
@@ -19,5 +19,13 @@ def load(repo):
     current_dir = os.getcwd()
     os.chdir(repo)
     wn = wordnet_yaml.load()
+    os.chdir(current_dir)
+    return wn
+
+
+def save(wn, repo):
+    current_dir = os.getcwd()
+    os.chdir(repo)
+    wordnet_yaml.save(wn)
     os.chdir(current_dir)
     return wn

@@ -3,7 +3,7 @@
 import argparse
 import sys
 import os
-import wordnet_yaml
+import wordnet_toyaml
 import wordnet
 import process
 from process import *

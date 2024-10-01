@@ -5,8 +5,7 @@ import re
 import sys
 import oewnio
 import wordnet
-
-import wordnet_yaml
+import wordnet_toyaml
 
 
 quotes2_open = '“'
@@ -67,6 +66,11 @@ def save_data(wn, dstdir, processingf):
             if process:
                 examples = [process_example(x, processingf) for x in examples]
             s["example"] = examples
+        if synset.usages:
+            usages = [wordnet_yaml.usage_to_yaml(wn, x) for x in synset.usages]
+            if process:
+                usages = [process_example(x, processingf) for x in usages]
+            s["usages"] = usages
         if synset.source:
             s["source"] = synset.source
         if synset.wikidata:
@@ -95,15 +99,21 @@ def get_processing(name):
 
 def main():
     parser = argparse.ArgumentParser(description="load from yaml and write")
-    parser.add_argument('repo', type=str, help='repository home')
+    parser.add_argument('repo', type=str, help='from-repository home')
+    parser.add_argument('repo2', type=str, help='to-repository home')
     parser.add_argument('--processing', type=str, help='processing function to apply')
     args = parser.parse_args()
     processingf = get_processing(args.processing)
     if processingf:
         print(processingf, file=sys.stderr)
 
+    print(f"Loading from {args.repo}")
     wn = oewnio.load(args.repo)
-    save_data(wn, args.repo, processingf)
+    print(f"Loaded from {args.repo}")
+
+    print(f"Saving to {args.repo2}")
+    save_data(wn, args.repo2, processingf)
+    print(f"Saved to {args.repo2}")
 
 
 if __name__ == '__main__':

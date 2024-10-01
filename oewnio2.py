@@ -1,16 +1,28 @@
 #!/usr/bin/python3
 
-import argparse
+import os
+import pickle
 
-import oewnio
 import wordnet_toyaml
 
 
-def members(wn, synset):
-    return [wn.id2entry[m].lemma.written_form for m in synset.members]
+def save_pickle(wn, repo):
+    pickle.dump(wn, open("%s/wn.pickle" % repo, "wb"))
 
 
-def save_data(wn, dstdir):
+def load_pickle(repo):
+    return pickle.load(open("%s/wn.pickle" % repo, "rb"))
+
+
+def load(repo):
+    current_dir = os.getcwd()
+    os.chdir(repo)
+    wn = wordnet_yaml.load()
+    os.chdir(current_dir)
+    return wn
+
+
+def save(wn, out_repo):
     synset_yaml = {}
     for synset in wn.synsets:
         s = {}
@@ -23,7 +35,8 @@ def save_data(wn, dstdir):
             examples = [wordnet_yaml.example_to_yaml(wn, x) for x in synset.examples]
             s["example"] = examples
         if synset.usages:
-            s["usage"] = [wordnet_yaml.usage_to_yaml(wn, x) for x in synset.usages]
+            usages = [wordnet_yaml.usage_to_yaml(wn, x) for x in synset.usages]
+            s["usage"] = usages
         if synset.source:
             s["source"] = synset.source
         if synset.wikidata:
@@ -38,23 +51,10 @@ def save_data(wn, dstdir):
             synset_yaml[synset.lex_name] = {}
         synset_yaml[synset.lex_name][synset.id[wordnet_yaml.KEY_PREFIX_LEN:]] = s
         s["members"] = members(wn, synset)
-        # BUG : these do not order preserving
-        # s["members"] = entries_ordered(wn, synset.id)
-        # s["members"] = wn.members_by_id(synset.id)
     for key, synsets in synset_yaml.items():
-        with wordnet_yaml.codecs.open("%s/src/yaml/%s.yaml" % (dstdir, key), "w", "utf-8") as outp:
-            outp.write(wordnet_yaml.yaml.dump(synsets, default_flow_style=False, allow_unicode=True))
+        with wordnet_yaml.codecs.open("%s/src/yaml/%s.yaml" % (out_repo, key), "w", "utf-8") as output:
+            output.write(wordnet_yaml.yaml.dump(synsets, default_flow_style=False, allow_unicode=True))
 
 
-def main():
-    parser = argparse.ArgumentParser(description="load from yaml and write")
-    parser.add_argument('repo', type=str, help='from repository home')
-    parser.add_argument('repo2', type=str, help='to repository home')
-    args = parser.parse_args()
-
-    wn = oewnio.load(args.repo)
-    save_data(wn, args.repo)
-
-
-if __name__ == '__main__':
-    main()
+def members(wn, synset):
+    return [wn.id2entry[m].lemma.written_form for m in synset.members]
