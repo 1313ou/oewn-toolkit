@@ -14,6 +14,7 @@ def load_verbframes(home):
 
 
 def load_entries(home):
+    sense_resolver = {}
     member_resolver = {}
     entries = []
     for f in glob(f'{home}/entries-*.yaml'):
@@ -32,9 +33,10 @@ def load_entries(home):
                     for n, sense_props in enumerate(props["sense"]):
                         sense = load_sense(sense_props, entry, n)
                         entry.senses.append(sense)
+                        sense_resolver[sense.id] = sense
                         member_resolver[(lemma, sense.synsetid)] = entry
                     entries.append(entry)
-    return entries, member_resolver
+    return entries, sense_resolver, member_resolver
 
 
 def load_synsets(home):
@@ -62,13 +64,15 @@ def load_sense(props, entry, n):
     if "subcat" in props:
         s.subcat = props["subcat"]
     # relations
+    sense_rel_types = [t.value for t in SenseRelType]
+    other_rel_types = [t.value for t in OtherSenseRelType]
     for rel, targets in props.items():
-        if rel in SenseRelType._value2member_map_:
+        if rel in sense_rel_types:
             for target in targets:
-                s.add_sense_relation(SenseRelation(target, SenseRelType(rel)))
-        if rel in OtherSenseRelType._value2member_map_:
+                s.sense_relations.append(SenseRelation(target, SenseRelType(rel)))
+        if rel in other_rel_types:
             for target in targets:
-                s.add_sense_relation(SenseRelation(target, SenseRelType.OTHER, rel))
+                s.sense_relations.append(SenseRelation(target, SenseRelType.OTHER, rel))
     return s
 
 
@@ -78,30 +82,31 @@ def load_synset(props, synsetid, lex_name):
                 props["members"],
                 lex_name)
     for defn in props["definition"]:
-        ss.add_definition(Definition(defn))
+        ss.definitions.append(Definition(defn))
     for example in props.get("example", []):
         if isinstance(example, str):
-            ss.add_example(Example(example))
+            ss.examples.append(Example(example))
         else:
-            ss.add_example(Example(example["text"], example["source"]))
+            ss.examples.append(Example(example["text"], example["source"]))
     for usage in props.get("usage", []):
-        ss.add_usage(Usage(usage))
+        ss.usages.append(Usage(usage))
     ss.source = props.get("source"),
     ss.wikidata = props.get("wikidata")
     ss.ili = props.get("ili", "in")
     # relations
+    synset_rel_types = [t.value for t in SynsetRelType]
     for rel, targets in props.items():
-        if rel in SynsetRelType._value2member_map_:
+        if rel in synset_rel_types:
             for target in targets:
-                ss.add_synset_relation(SynsetRelation(target, SynsetRelType(rel)))
+                ss.synset_relations.append(SynsetRelation(target, SynsetRelType(rel)))
     return ss
 
 
-def resolve_members(resolver, synset):
-    return [resolve_member(resolver, m, synset) for m in synset.members]
-
-
 def resolve_member(resolver, m, synset):
+    return resolver[(m, synset.id)]
+
+
+def resolve_synset_relations(resolver, m, synset):
     return resolver[(m, synset.id)]
 
 
@@ -115,11 +120,14 @@ def load(home):
     wn.frames = load_verbframes(home)
 
     # lex entries
-    wn.entries, wn.member_resolver = load_entries(home)
+    wn.entries, wn.sense_resolver, wn.member_resolver = load_entries(home)
 
     # synsets
     wn.synsets, wn.synset_resolver = load_synsets(home)
+    return wn
 
+
+def resolve(wn):
     # resolve synset reference in sense
     for e in wn.entries:
         for s in e.senses:
@@ -127,13 +135,23 @@ def load(home):
 
     # resolve member reference in synset
     for ss in wn.synsets:
-        ss.resolved_members = resolve_members(wn.member_resolver, ss)
+        ss.resolved_members = [resolve_member(wn.member_resolver, m, ss) for m in ss.members]
 
-    return wn
+    # resolve target reference in synset relations
+    for ss in wn.synsets:
+        for r in ss.synset_relations:
+            r.resolved_target = wn.synset_resolver[r.target]
+
+    # resolve target reference in synset relations
+    for e in wn.entries:
+        for s in e.senses:
+            for r in s.sense_relations:
+                r.resolved_target = wn.sense_resolver[r.target]
 
 
 def main():
     wn = load("src/yaml")
+    resolve(wn)
     print(wn)
 
 
