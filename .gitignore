@@ -4,8 +4,5 @@
 /oewn*
 /testing*
 /__pycache__
-/from-yaml.py
-/wordnet.py
-/wordnet_toyaml.py
 /data
 /test*.xml

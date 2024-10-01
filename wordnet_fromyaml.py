@@ -102,14 +102,6 @@ def load_synset(props, synsetid, lex_name):
     return ss
 
 
-def resolve_member(resolver, m, synset):
-    return resolver[(m, synset.id)]
-
-
-def resolve_synset_relations(resolver, m, synset):
-    return resolver[(m, synset.id)]
-
-
 def load(home):
     wn = Lexicon("oewn", "English WordNet", "en",
                  "english-wordnet@googlegroups.com",
@@ -135,18 +127,22 @@ def resolve(wn):
 
     # resolve member reference in synset
     for ss in wn.synsets:
-        ss.resolved_members = [resolve_member(wn.member_resolver, m, ss) for m in ss.members]
+        ss.resolved_members = [wn.member_resolver[(m, ss.id)] for m in ss.members]
 
     # resolve target reference in synset relations
     for ss in wn.synsets:
         for r in ss.synset_relations:
             r.resolved_target = wn.synset_resolver[r.target]
 
-    # resolve target reference in synset relations
+    # resolve target reference in sense relations
     for e in wn.entries:
         for s in e.senses:
             for r in s.sense_relations:
                 r.resolved_target = wn.sense_resolver[r.target]
+
+
+def extend(wn):
+    pass
 
 
 def main():
