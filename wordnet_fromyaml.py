@@ -8,7 +8,7 @@ from wordnet import *
 
 
 def load_verbframes(home):
-    with open(f'{home}/frames.yaml', encoding="utf-8") as inp:
+    with open(f'{home}/frames.yaml', encoding='utf-8') as inp:
         frames = yaml.load(inp, Loader=yaml.CLoader)
         return [SyntacticBehaviour(k, v) for k, v in frames.items()]
 
@@ -18,19 +18,19 @@ def load_entries(home):
     member_resolver = {}
     entries = []
     for f in glob(f'{home}/entries-*.yaml'):
-        with open(f, encoding="utf-8") as inp:
+        with open(f, encoding='utf-8') as inp:
             y = yaml.load(inp, Loader=yaml.CLoader)
             for lemma, poses_discriminants in y.items():
                 for pos_discriminant, props in poses_discriminants.items():
                     pos = pos_discriminant[:1]
                     discriminant = pos_discriminant[1:]
                     entry = LexicalEntry(lemma, pos, discriminant)
-                    if "form" in props:
+                    if 'form' in props:
                         entry.form = props['form']
-                    if "pronunciation" in props:
-                        entry.pronunciation = [Pronunciation(p["value"], p.get("variety")) for p in
-                                               props["pronunciation"]]
-                    for n, sense_props in enumerate(props["sense"]):
+                    if 'pronunciation' in props:
+                        entry.pronunciation = [Pronunciation(p['value'], p.get('variety')) for p in
+                                               props['pronunciation']]
+                    for n, sense_props in enumerate(props['sense']):
                         sense = load_sense(sense_props, entry, n)
                         entry.senses.append(sense)
                         sense_resolver[sense.id] = sense
@@ -48,7 +48,7 @@ def load_synsets(home):
     adv_files = glob(f'{home}/adv*.yaml')
     for f in noun_files + verb_files + adj_files + adv_files:
         lex_name = f[9:-5]
-        with open(f, encoding="utf-8") as inp:
+        with open(f, encoding='utf-8') as inp:
             y = yaml.load(inp, Loader=yaml.CLoader)
             for synsetid, props in y.items():
                 synset = load_synset(props, synsetid, lex_name)
@@ -58,11 +58,11 @@ def load_synsets(home):
 
 
 def load_sense(props, entry, n):
-    s = Sense(props["id"], entry, props["synset"], n, props.get("adjposition"))
-    if "sent" in props:
-        s.sent = props["sent"]
-    if "subcat" in props:
-        s.subcat = props["subcat"]
+    s = Sense(props['id'], entry, props['synset'], n, props.get('adjposition'))
+    if 'sent' in props:
+        s.sent = props['sent']
+    if 'subcat' in props:
+        s.subcat = props['subcat']
     # relations
     sense_rel_types = [t.value for t in SenseRelType]
     other_rel_types = [t.value for t in OtherSenseRelType]
@@ -78,21 +78,21 @@ def load_sense(props, entry, n):
 
 def load_synset(props, synsetid, lex_name):
     ss = Synset(synsetid,
-                props["partOfSpeech"],
-                props["members"],
+                props['partOfSpeech'],
+                props['members'],
                 lex_name)
-    for defn in props["definition"]:
+    for defn in props['definition']:
         ss.definitions.append(Definition(defn))
-    for example in props.get("example", []):
+    for example in props.get('example', []):
         if isinstance(example, str):
             ss.examples.append(Example(example))
         else:
-            ss.examples.append(Example(example["text"], example["source"]))
-    for usage in props.get("usage", []):
+            ss.examples.append(Example(example['text'], example['source']))
+    for usage in props.get('usage', []):
         ss.usages.append(Usage(usage))
-    ss.source = props.get("source"),
-    ss.wikidata = props.get("wikidata")
-    ss.ili = props.get("ili", "in")
+    ss.source = props.get('source'),
+    ss.wikidata = props.get('wikidata')
+    ss.ili = props.get('ili', 'in')
     # relations
     synset_rel_types = [t.value for t in SynsetRelType]
     for rel, targets in props.items():
@@ -103,11 +103,11 @@ def load_synset(props, synsetid, lex_name):
 
 
 def load(home):
-    wn = Lexicon("oewn", "English WordNet", "en",
-                 "english-wordnet@googlegroups.com",
-                 "https://creativecommons.org/licenses/by/4.0",
-                 "2024",
-                 "https://github.com/globalwordnet/english-wordnet")
+    wn = Lexicon('oewn', 'English WordNet', 'en',
+                 'english-wordnet@googlegroups.com',
+                 'https://creativecommons.org/licenses/by/4.0',
+                 '2024',
+                 'https://github.com/globalwordnet/english-wordnet')
     # frames
     wn.frames = load_verbframes(home)
 
@@ -142,11 +142,11 @@ def resolve(wn):
 
 
 def extend(wn):
-    pass
+    raise f'Extending {wn} not implemented'
 
 
 def main():
-    wn = load("src/yaml")
+    wn = load('src/yaml')
     resolve(wn)
     print(wn)
 

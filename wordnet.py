@@ -22,7 +22,7 @@ class Lexicon:
         self.member_resolver = {}
 
     def __str__(self):
-        return "Lexicon with ID %s and %d entries and %d synsets" % (
+        return 'Lexicon with ID %s and %d entries and %d synsets' % (
             self.id, len(self.entries), len(self.synsets))
 
     def add_entry(self, entry):
@@ -123,8 +123,7 @@ class SenseRelation:
 class SyntacticBehaviour:
     def __init__(self, bid, subcategorization_frame):
         if not isinstance(subcategorization_frame, str):
-            raise "Syntactic Behaviour is not string" + \
-                  str(subcategorization_frame)
+            raise f'Syntactic Behaviour is not string{str(subcategorization_frame)}'
         self.subcategorization_frame = subcategorization_frame
         self.id = bid
 
@@ -354,5 +353,5 @@ ignored_symmetric_sense_rels = {
     SenseRelType.HAS_DOMAIN_REGION, SenseRelType.HAS_DOMAIN_TOPIC,
     SenseRelType.IS_EXEMPLIFIED_BY}
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     pass
