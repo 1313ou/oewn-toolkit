@@ -12,7 +12,7 @@ def char_range(c1, c2):
         yield chr(c)
 
 
-def sense_to_yaml(s, resolver):
+def sense_to_yaml(s, sense_resolver):
     """Converts a single sense to the YAML form"""
     y = {'synset': s.synset, 'id': s.id}
     if s.adjposition:
@@ -22,8 +22,8 @@ def sense_to_yaml(s, resolver):
             t = r.rel_type.value
             if t not in y:
                 y[t] = []
-            if resolver is not None and resolver[r.target] == r.resolved_target.id:
-                raise f'Dead link from {s.id} to {r.target}'
+            if sense_resolver is not None and sense_resolver[r.target] == r.resolved_target.id:
+                raise f'Unresolved sense relation target of type {t} in {s.id} to {r.target}'
             y[t].append(r.target)
 
     if s.subcat:
@@ -57,7 +57,7 @@ def entry_to_yaml(entry, sense_resolver):
     return e
 
 
-def save_entries(wn, home, change_list=None):
+def save_entries(wn, home):
     entry_yaml = {c: {} for c in char_range('a', 'z')}
     entry_yaml['0'] = {}
     for entry in wn.entries:
@@ -76,16 +76,14 @@ def save_entries(wn, home, change_list=None):
         entry_yaml[first][entry.lemma.written_form][entry.lemma.part_of_speech.value] = e
 
     for c in char_range('a', 'z'):
-        if not change_list or c in change_list.entry_files:
-            with codecs.open(f'{home}/entries-%s.yaml' % c, 'w', 'utf-8') as outp:
-                outp.write(yaml.dump(entry_yaml[c], default_flow_style=False,
-                                     allow_unicode=True))
-    if not change_list or '0' in change_list.entry_files:
-        with codecs.open(f'{home}/entries-0.yaml', 'w', 'utf-8') as outp:
-            outp.write(yaml.dump(entry_yaml['0'], default_flow_style=False, allow_unicode=True))
+        with codecs.open(f'{home}/entries-%s.yaml' % c, 'w', 'utf-8') as outp:
+            outp.write(yaml.dump(entry_yaml[c], default_flow_style=False,
+                                 allow_unicode=True))
+    with codecs.open(f'{home}/entries-0.yaml', 'w', 'utf-8') as outp:
+        outp.write(yaml.dump(entry_yaml['0'], default_flow_style=False, allow_unicode=True))
 
 
-def save_synsets(wn, home, change_list=None):
+def save_synsets(wn, home):
     synset_yaml = {}
     for synset in wn.synsets:
         s = {'members': [wn.id2entry[m].lemma.written_form for m in synset.members],
@@ -111,9 +109,8 @@ def save_synsets(wn, home, change_list=None):
         synset_yaml[synset.lex_name][synset.id] = s
 
     for key, synsets in synset_yaml.items():
-        if not change_list or key in change_list.lexfiles:
-            with codecs.open(f'{home}/%s.yaml' % key, 'w', 'utf-8') as outp:
-                outp.write(yaml.dump(synsets, default_flow_style=False, allow_unicode=True))
+        with codecs.open(f'{home}/%s.yaml' % key, 'w', 'utf-8') as outp:
+            outp.write(yaml.dump(synsets, default_flow_style=False, allow_unicode=True))
 
 
 def save_frames(wn, home):
@@ -121,7 +118,7 @@ def save_frames(wn, home):
         outp.write(yaml.dump(wn.frames, default_flow_style=False, allow_unicode=True))
 
 
-def save(wn, home, change_list=None):
-    save_entries(wn, home, change_list)
-    save_synsets(wn, home, change_list)
+def save(wn, home):
+    save_entries(wn, home)
+    save_synsets(wn, home)
     save_frames(wn, home)
