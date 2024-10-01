@@ -14,8 +14,7 @@ def load_verbframes(home):
 
 
 def load_entries(home):
-    entry_resolver = {}
-    sense_resolver = {}
+    member_resolver = {}
     entries = []
     for f in glob(f'{home}/entries-*.yaml'):
         with open(f, encoding="utf-8") as inp:
@@ -33,10 +32,9 @@ def load_entries(home):
                     for n, sense_props in enumerate(props["sense"]):
                         sense = load_sense(sense_props, entry, n)
                         entry.senses.append(sense)
-                        sense_resolver[sense.id] = sense
+                        member_resolver[(lemma, sense.synsetid)] = entry
                     entries.append(entry)
-                    entry_resolver[(lemma, pos, discriminant)] = entry
-    return entries, entry_resolver, sense_resolver
+    return entries, member_resolver
 
 
 def load_synsets(home):
@@ -76,8 +74,8 @@ def load_sense(props, entry, n):
 
 def load_synset(props, synsetid, lex_name):
     ss = Synset(synsetid,
-                props["members"],
                 props["partOfSpeech"],
+                props["members"],
                 lex_name)
     for defn in props["definition"]:
         ss.add_definition(Definition(defn))
@@ -99,8 +97,12 @@ def load_synset(props, synsetid, lex_name):
     return ss
 
 
-def resolve_synset_members(wn, ss):
-    ss.resolved_members = [wn.synset_resolver[(l, ss.pos)] for l in ss.members]
+def resolve_members(resolver, synset):
+    return [resolve_member(resolver, m, synset) for m in synset.members]
+
+
+def resolve_member(resolver, m, synset):
+    return resolver[(m, synset.id)]
 
 
 def load(home):
@@ -113,7 +115,7 @@ def load(home):
     wn.frames = load_verbframes(home)
 
     # lex entries
-    wn.entries, wn.entry_resolver, wn.sense_resolver = load_entries(home)
+    wn.entries, wn.member_resolver = load_entries(home)
 
     # synsets
     wn.synsets, wn.synset_resolver = load_synsets(home)
@@ -122,12 +124,18 @@ def load(home):
     for e in wn.entries:
         for s in e.senses:
             s.resolved_synset = wn.synset_resolver[s.synsetid]
+
+    # resolve member reference in synset
+    for ss in wn.synsets:
+        ss.resolved_members = resolve_members(wn.member_resolver, ss)
+
     return wn
 
 
 def main():
     wn = load("src/yaml")
     print(wn)
+
 
 if __name__ == '__main__':
     main()
