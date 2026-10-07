@@ -1,10 +1,9 @@
 #!/usr/bin/python3
 
 import argparse
-import sys
 import os
-import wordnet_toyaml
-import wordnet
+from oewn_core import wordnet_fromyaml
+
 import process
 from process import *
 
@@ -29,7 +28,7 @@ def get_processing(name):
 def load(repo):
     current_dir = os.getcwd()
     os.chdir(repo)
-    wn = wordnet_yaml.load()
+    wn = wordnet_fromyaml.load('.')
     os.chdir(current_dir)
     return wn
 

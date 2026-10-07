@@ -77,14 +77,5 @@ def main():
         read_file(f)
 
 
-def main0():
-    for c in (q1, q2, aa, ag):
-        print(f"{c} {is_ascii(c)}")
-        print(f"{c} {is_ascii2(c)}")
-        print(f"{c} {is_ascii3(c)}")
-        print(f"{c} {is_ascii4(c)}")
-        print()
-
-
 if __name__ == '__main__':
     main()

@@ -2,8 +2,9 @@
 
 import argparse
 
-import oewnio
-import wordnet_toyaml
+import oewn_core.wordnet_toyaml
+
+from load_yaml import load
 
 
 def members(wn, synset):
@@ -16,14 +17,14 @@ def save_data(wn, dstdir):
         s = {}
         if synset.ili and synset.ili != "in":
             s["ili"] = synset.ili
-        s["partOfSpeech"] = synset.part_of_speech.value
-        definitions = [wordnet_yaml.definition_to_yaml(wn, d) for d in synset.definitions]
+        s["partOfSpeech"] = synset.pos.value
+        definitions = [oewn_core.wordnet_yaml.definition_to_yaml(wn, d) for d in synset.definitions]
         s["definition"] = definitions
         if synset.examples:
-            examples = [wordnet_yaml.example_to_yaml(wn, x) for x in synset.examples]
+            examples = [oewn_core.wordnet_yaml.example_to_yaml(wn, x) for x in synset.examples]
             s["example"] = examples
         if synset.usages:
-            s["usage"] = [wordnet_yaml.usage_to_yaml(wn, x) for x in synset.usages]
+            s["usage"] = [oewn_core.wordnet_yaml.usage_to_yaml(wn, x) for x in synset.usages]
         if synset.source:
             s["source"] = synset.source
         if synset.wikidata:
@@ -52,7 +53,7 @@ def main():
     parser.add_argument('repo2', type=str, help='to repository home')
     args = parser.parse_args()
 
-    wn = oewnio.load(args.repo)
+    wn = load(args.repo)
     save_data(wn, args.repo)
 
 

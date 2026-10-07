@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import load_write_yaml
+from process import revert_to_grave_acute
 
 ss = [
     'blabla “Achilles＇ heel” blabla',
@@ -12,7 +12,7 @@ ss = [
     ]
 
 for s in ss:
-    r = load_write_yaml.revert_to_grave_acute(s)
+    r = revert_to_grave_acute(s)
     print(s)
     print(r)
     print()

@@ -356,5 +356,20 @@ def process_2_hyphens(input_text):
     return search_sub(input_text, r, s)
 
 
+quotes2_open = '“'
+quotes2_close = '”'
+grave_accent = '`'
+acute_accent = '´'
+full_width_apostrophe = '＇'
+apostrophe = "'"
+
+
+def revert_to_grave_acute(s):
+    s = re.sub(quotes2_open, grave_accent, s)
+    s = re.sub(quotes2_close, acute_accent, s)
+    s = re.sub(full_width_apostrophe, apostrophe, s)
+    return s
+
+
 def default_process(input_text):
     return input_text

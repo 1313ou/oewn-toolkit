@@ -3,27 +3,13 @@
 import argparse
 import re
 import sys
-import oewnio
-import wordnet
-import wordnet_toyaml
+from oewn_core import wordnet
+from oewn_core import wordnet_toyaml
 
-
-quotes2_open = '“'
-quotes2_close = '”'
-grave_accent = '`'
-acute_accent = '´'
-full_width_apostrophe = '＇'
-apostrophe = "'"
+from load_yaml import load
 
 
 def default_processing(s):
-    return s
-
-
-def revert_to_grave_acute(s):
-    s = re.sub(quotes2_open, grave_accent, s)
-    s = re.sub(quotes2_close, acute_accent, s)
-    s = re.sub(full_width_apostrophe, apostrophe, s)
     return s
 
 
@@ -56,7 +42,7 @@ def save_data(wn, dstdir, processingf):
         s = {}
         if synset.ili and synset.ili != "in":
             s["ili"] = synset.ili
-        s["partOfSpeech"] = synset.part_of_speech.value
+        s["partOfSpeech"] = synset.pos.value
         definitions = [wordnet_yaml.definition_to_yaml(wn, d) for d in synset.definitions]
         if process:
             definitions = [process_definition(d, processingf) for d in definitions]
@@ -88,9 +74,6 @@ def save_data(wn, dstdir, processingf):
         # BUG : these do not preserve order
         # s["members"] = entries_ordered(wn, synset.id)
         # s["members"] = wn.members_by_id(synset.id)
-    for key, synsets in synset_yaml.items():
-        with wordnet_yaml.codecs.open("%s/src/yaml/%s.yaml" % (dstdir, key), "w", "utf-8") as os:
-            os.write(wordnet_yaml.yaml.dump(synsets, default_flow_style=False, allow_unicode=True))
 
 
 def get_processing(name):
@@ -108,11 +91,11 @@ def main():
         print(processingf, file=sys.stderr)
 
     print(f"Loading from {args.repo}")
-    wn = oewnio.load(args.repo)
+    wn = load(args.repo)
     print(f"Loaded from {args.repo}")
 
     print(f"Saving to {args.repo2}")
-    save_data(wn, args.repo2, processingf)
+    save(wn, args.repo2)
     print(f"Saved to {args.repo2}")
 
 
