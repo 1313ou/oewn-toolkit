@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="load_yaml" type="PythonConfigurationType" factoryName="Python" folderName="from yaml" nameIsGenerated="true">
+  <configuration default="false" name="scan_yaml" type="PythonConfigurationType" factoryName="Python" folderName="from yaml" nameIsGenerated="true">
     <module name="oewn-toolkit" />
     <option name="ENV_FILES" value="" />
     <option name="INTERPRETER_OPTIONS" value="" />
@@ -12,7 +12,9 @@
     <option name="IS_MODULE_SDK" value="true" />
     <option name="ADD_CONTENT_ROOTS" value="true" />
     <option name="ADD_SOURCE_ROOTS" value="true" />
-    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/load_yaml.py" />
+    <option name="DEBUG_JUST_MY_CODE" value="true" />
+    <option name="RUN_TOOL" value="" />
+    <option name="SCRIPT_NAME" value="$PROJECT_DIR$/scan_yaml.py" />
     <option name="PARAMETERS" value="yaml" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
