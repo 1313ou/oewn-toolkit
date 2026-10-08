@@ -1,8 +1,12 @@
 #!/usr/bin/python3
 
+"""
+Scan 2 databases.
+Zip rows based on id identity.
+Process pairs.
+"""
+
 import argparse
-import sys
-import re
 import sqlite3
 from tqdm.auto import tqdm
 import process
@@ -13,20 +17,23 @@ SELECT 'sam' AS type, sampleid AS nid, sample AS `text`, oewnsynsetid FROM sampl
 UNION
 SELECT 'def' AS type, synsetid AS nid, definition AS `text`, oewnsynsetid FROM synsets
 """
-sql = f"SELECT oewnsynsetid, nid, type, `text` FROM ({sql_union}) ORDER BY oewnsynsetid, nid" #+ " LIMIT 10"
-sql_count = f"SELECT COUNT(*) FROM ({sql_union})"
+sql = f"SELECT oewnsynsetid, nid, type, `text` FROM ({sql_union}) ORDER BY oewnsynsetid, nid"  # + " LIMIT 10"
 print(sql, file=sys.stderr)
+
+sql_count = f"SELECT COUNT(*) FROM ({sql_union})"
 
 progress = False
 
 
-def sub_acute(input_text):
-    return re.sub(r'´', "'", input_text)  # Ctr+Shift+ U then 0 0 B 4
+def count(conn, resume):
+    cursor = conn.cursor()
+    sql2 = build_sql(sql_count, resume)
+    cursor.execute(sql2)
+    return cursor.fetchone()[0]
 
 
-def sub_acute_apostrophe(input_text):
-    r =  sub_acute( input_text)
-    return re.sub(r'＇', "'", r)  # Ctr+Shift+ U then F F 0 7
+def build_sql(sql_statement, resume):
+    return sql_statement + f" WHERE oewnsynsetid >= {resume}" if resume else sql_statement
 
 
 def process_rows(row1, row2, processing1f, processing2f):
@@ -41,17 +48,6 @@ def process_rows(row1, row2, processing1f, processing2f):
         print(f"{rowid1}\t{text1}\t{text2}")
         return 1
     return 0
-
-
-def count(conn, resume):
-    cursor = conn.cursor()
-    sql2 = build_sql(sql_count, resume)
-    cursor.execute(sql2)
-    return cursor.fetchone()[0]
-
-
-def build_sql(sql_statement, resume):
-    return sql_statement + f" WHERE oewnsynsetid >= {resume}" if resume else sql_statement
 
 
 def read(file, resume):
@@ -87,7 +83,7 @@ def get_processing(name):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="scans the examples and definitions from sqlite file")
+    parser = argparse.ArgumentParser(description="scans the examples and definitions from 2 sqlite files")
     parser.add_argument('database1', type=str, help='database')
     parser.add_argument('database2', type=str, help='database')
     parser.add_argument('--resume', type=int, help='row to resume from')

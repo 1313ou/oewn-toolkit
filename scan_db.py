@@ -1,5 +1,10 @@
 #!/usr/bin/python3
 
+"""
+Scan a database.
+Process examples and definitions.
+"""
+
 import argparse
 import sqlite3
 from typing import Callable, Any

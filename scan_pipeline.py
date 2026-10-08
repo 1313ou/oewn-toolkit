@@ -1,5 +1,10 @@
 #!/usr/bin/python3
 
+"""
+Scan input (file).
+Process lines.
+"""
+
 import argparse
 
 import process
