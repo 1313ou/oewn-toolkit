@@ -2,56 +2,76 @@
 
 import argparse
 import os
-from oewn_core import wordnet_fromyaml
-from oewn_core.wordnet import Example
+import sys
 
-import process
-from process import *
+from oewn_core import wordnet
+from oewn_core.wordnet_fromyaml import load as load_repo
+from oewn_core.wordnet_toyaml import save as save_repo
 
-processing_result = False
+do_process_definitions = False
+do_process_examples = True
 
 
-def process_text(input_text, rowid, processingf):
-    r = processingf(input_text)
-    if r:
-        if processing_result:
-            print(f"{rowid}\t{input_text}\t{r}")
-        else:
-            print(f"{rowid}\t{input_text}")
-        return 1
-    return 0
+def process_definition(definition, processingf):
+    return processingf(definition)
+
+
+def process_example(example, processingf):
+    if isinstance(example, str):
+        example = processingf(example)
+    elif isinstance(example, wordnet.Example):
+        example.text = processingf(example.text)
+    return example
+
+
+def process_synsets(wn, definition_processingf, example_processingf):
+    for synset in wn.synsets:
+        if do_process_definitions:
+            synset.definitions = [process_definition(definition, definition_processingf) for definition in synset.definitions]
+        if do_process_examples:
+            if synset.examples:
+                synset.examples = [process_example(example, example_processingf) for example in synset.examples]
 
 
 def load(repo):
     current_dir = os.getcwd()
     os.chdir(repo)
-    wn = wordnet_fromyaml.load('.')
+    wn = load_repo('.')
     os.chdir(current_dir)
     return wn
 
 
+def default_processing(s):
+    return s
+
+
 def get_processing(name):
-    return globals()[name] if name else process.default_process
+    return globals()[name] if name else default_processing
 
 
 def main():
-    parser = argparse.ArgumentParser(description="load from yaml")
+    parser = argparse.ArgumentParser(description="load from yaml, process and write")
     parser.add_argument('repo', type=str, help='repository home')
-    parser.add_argument('--processing', type=str, help='processing function to apply')
+    parser.add_argument('out', type=str, help='output dir')
+    parser.add_argument('--dprocessing', type=str, help='definition processing function to apply')
+    parser.add_argument('--xprocessing', type=str, help='example processing function to apply')
     args = parser.parse_args()
-    processing = get_processing(args.processing)
-    print(processing, file=sys.stderr)
+    dprocessingf = get_processing(args.dprocessing)
+    if dprocessingf:
+        print(dprocessingf, file=sys.stderr)
+    xprocessingf = get_processing(args.xprocessing)
+    if xprocessingf:
+        print(xprocessingf, file=sys.stderr)
 
+    # read
     wn = load(args.repo)
-    print('loaded', file=sys.stderr)
-
-    for synset in wn.synsets:
-        for definition in synset.definitions:
-            process_text(definition, f"{synset.id}\tdef", processing)
-        for example in synset.examples:
-            e = example.text if example is Example else example
-            process_text(e, f"{synset.id}\tsam", processing)
-    print('processed', file=sys.stderr)
+    print(f"loaded from {args.repo}", file=sys.stderr)
+    # process
+    process_synsets(wn, dprocessingf, xprocessingf)
+    print("processed", file=sys.stderr)
+    # write
+    save_repo(wn, args.out)
+    print(f"saved to {args.out}", file=sys.stderr)
 
 
 if __name__ == '__main__':

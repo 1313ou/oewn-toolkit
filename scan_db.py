@@ -6,12 +6,13 @@ Process examples and definitions.
 """
 
 import argparse
+import re
+import sys
+import time
 import sqlite3
 from typing import Callable, Any
 
 from tqdm.auto import tqdm
-import process
-from process import *
 
 sql_union = """
 SELECT 'sam' AS type, sampleid AS nid, sample AS `text`, oewnsynsetid FROM samples INNER JOIN synsets USING(synsetid)
@@ -44,7 +45,21 @@ scope_2_sql_count = {
 
 
 progress = False
-full_print = False
+full_print = True
+
+
+def search_regex(input_text, regex):
+    match = re.search(regex, input_text)
+    if match:
+        return match.group()
+    else:
+        return None
+
+
+def find_regex(input_text, regex):
+    if search_regex(input_text, regex):
+        return input_text
+    return None
 
 
 def process_text(input_text, rowid, processingf):
@@ -98,8 +113,11 @@ def read(file, resume, processingf, scope=None):
     print(f"{process_count} found/processed", file=sys.stderr)
 
 
+def default_processing(s):
+    return s
+
 def get_processing(name):
-    return globals()[name] if name else process.default_process
+    return globals()[name] if name else default_processing
 
 
 def find_target(input_text, target):
@@ -107,6 +125,7 @@ def find_target(input_text, target):
 
 
 def main():
+    start = time.time()
     parser = argparse.ArgumentParser(description="scans the examples and definitions from sqlite file")
     parser.add_argument('database', type=str, help='database')
     parser.add_argument('--resume', type=int, help='row to resume from')
@@ -123,6 +142,8 @@ def main():
         if processingf:
             print(processingf, file=sys.stderr)
     read(args.database, args.resume, processingf, scope=args.scope)
+    end = time.time()
+    print(f"Duration {end - start}", file=sys.stderr)
 
 
 if __name__ == '__main__':
