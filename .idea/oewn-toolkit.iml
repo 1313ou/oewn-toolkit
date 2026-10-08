@@ -7,13 +7,13 @@
       <excludeFolder url="file://$MODULE_DIR$/fork/src/xml" />
       <excludeFolder url="file://$MODULE_DIR$/testing" />
       <excludeFolder url="file://$MODULE_DIR$/fork" />
-      <excludeFolder url="file://$MODULE_DIR$/fork2" />
       <excludeFolder url="file://$MODULE_DIR$/oewn" />
       <excludeFolder url="file://$MODULE_DIR$/yaml" />
       <excludeFolder url="file://$MODULE_DIR$/oewn_fork" />
       <excludeFolder url="file://$MODULE_DIR$/oewn-2024-sqlite-2.1.1-x-main.sqlite" />
       <excludeFolder url="file://$MODULE_DIR$/oewn-2024-sqlite-2.1.1-x-pr.sqlite" />
       <excludeFolder url="file://$MODULE_DIR$/oewn-2024-sqlite-2.1.1-x.sqlite" />
+      <excludeFolder url="file://$MODULE_DIR$/out" />
     </content>
     <orderEntry type="jdk" jdkName="$MODULE_DIR$/.venv" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
